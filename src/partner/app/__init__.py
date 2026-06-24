@@ -1,15 +1,22 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
+
+from partner.app.ChatRouter import chatRouter
+from partner.clients.LLMClient import LLMClient
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("服务器启动中")
+    # 初始化LLMClient实例
+    app.state.llm_client = LLMClient()
+    logger.info("LLMClient初始化完成")
     yield
     logger.info("服务器关闭中")
+
 
 
 app = FastAPI(
@@ -31,6 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(chatRouter,prefix="/chat",tags=["聊天"])
 
 # 测试
 @app.get('/')

@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 
+from partner.app import SystemPromptRouter
 from partner.app.ChatRouter import chatRouter
+from partner.app.SystemPromptRouter import systemPromptRouter
 from partner.clients.LLMClient import LLMClient
 
 
@@ -39,6 +41,8 @@ app.add_middleware(
 )
 
 app.include_router(chatRouter,prefix="/chat",tags=["聊天"])
+app.include_router(systemPromptRouter,prefix="/systempromt",tags=["系统提示词"])
+
 
 # 测试
 @app.get('/')

@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     PORT: int = Field(default=8091)
     LOG_PATH: str | None = None
     DATABASE_PG_URL: str = Field(default="未定义")
+    BASE_URL_ALI: str | None = None
+    MODEL: str | None = None
+    API_KEY_ALI: str | None = None
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore"

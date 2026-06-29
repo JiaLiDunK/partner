@@ -18,4 +18,15 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+# 设置登录相关的
+class LoginSettings(BaseSettings):
+    SECRET_KEY: str | None = None
+    ALGORITHM: str = Field(default='HS256')
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore"
+    )
+
 settings = Settings()
+loginSettings = LoginSettings()

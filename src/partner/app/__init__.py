@@ -1,13 +1,15 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 
 from partner.app import SystemPromptRouter
 from partner.app.ChatRouter import chatRouter
 from partner.app.SystemPromptRouter import systemPromptRouter
+from partner.app.UserRouter import userRouter
 from partner.clients.LLMClient import LLMClient
+from partner.config.SecurityConfig import get_current_login
 
 
 @asynccontextmanager
@@ -26,6 +28,7 @@ app = FastAPI(
     version="1.0",
     deprecation="开始搭建自己的python基础服务",
     lifespan=lifespan,
+    docs_url=None,
 )
 # 配置容许的前端域名
 origins = [
@@ -40,9 +43,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chatRouter,prefix="/chat",tags=["聊天"])
-app.include_router(systemPromptRouter,prefix="/systempromt",tags=["系统提示词"])
-
+app.include_router(chatRouter,prefix="/chat",tags=["聊天"],dependencies=[Depends(get_current_login)])
+app.include_router(systemPromptRouter,prefix="/systempromt",tags=["系统提示词"],dependencies=[Depends(get_current_login)])
+app.include_router(userRouter,prefix="/user",tags=["用户管理"])
 
 # 测试
 @app.get('/')

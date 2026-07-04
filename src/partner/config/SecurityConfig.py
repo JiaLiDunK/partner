@@ -1,7 +1,7 @@
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 
 from partner.config.SettingConfig import loginSettings
@@ -9,16 +9,21 @@ from partner.config.SettingConfig import loginSettings
 oauth = OAuth2PasswordBearer(tokenUrl="/token")
 
 
-def get_current_login(token: Annotated[str, Depends(oauth)]):
+def get_current_login(token: Annotated[str | None, Header()] = None):
     credentials = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="无法验证凭证",
         headers={"Authenticate": "Bearer"},
     )
+
+    if token is None:
+        raise credentials
+
     try:
         payload = jwt.decode(token, loginSettings.SECRET_KEY, algorithms=[loginSettings.ALGORITHM])
-        username = payload.get("email")
+        username = payload.get("username")
         if username is None:
             raise credentials
+        return username
     except jwt.PyJWTError:
         raise credentials
